@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -34,3 +35,18 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+=======
+# Ai-Trip-Planner
+An intelligent travel assistant that helps you plan trips effortlessly. Built with AI to generate personalized itineraries, suggest destinations, recommend hotels, find activities, and estimate budgets — all based on your preferences like travel dates, budget, and interests.
+🗺️ AI-powered itinerary generation
+
+🌍 Destination suggestions with descriptions & images
+
+🏨 Hotel and restaurant recommendations
+
+📅 Day-by-day travel plans
+
+💰 Budget estimation & cost breakdown
+
+📱 Clean, responsive UI
+>>>>>>> ba3298fcdc2f37c11674ced3335c9f49d7773305
