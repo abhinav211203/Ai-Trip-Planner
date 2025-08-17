@@ -3,14 +3,14 @@ import ChatBot from './_components/ChatBot'
 
 function CreateNewTrip () {
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 gap-5 p-10'>
+    // 👇 KEY CHANGE HERE: Removed the grid and column classes
+    <div className='p-10'>
+      {/* This div is no longer needed but is harmless */}
       <div>
-            <ChatBot/>
-      </div>
-      <div>
-        Map and trip Plan to Display
+        <ChatBot/>
       </div>
     </div>
   )
 }
+
 export default CreateNewTrip

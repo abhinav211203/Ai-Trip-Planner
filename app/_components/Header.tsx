@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { SignInButton, useUser, useClerk, SignOutButton } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-const menuoptions = [
+export const menuoptions = [
   {
     name:'Home',
     path:'/'
