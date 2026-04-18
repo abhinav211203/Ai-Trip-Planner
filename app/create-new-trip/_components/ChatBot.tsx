@@ -1,9 +1,11 @@
-"use client"
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { Send } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send } from "lucide-react";
-import React, { useState, useRef, useEffect } from "react";
 import { Empty } from "./Empty";
 import { Group_Sizze } from "./Group_Sizze";
 import { Budget } from "./Budget";
@@ -11,161 +13,206 @@ import { DynamicDurationComponent } from "./Duration";
 import TripDisplay from "./Tripdetail";
 
 type Message = {
-  role: "user" | "assistant";
-  content: string;
-  ui?: string;
+  role: "user" | "assistant";
+  content: string;
+  ui?: string;
+};
+
+type UserPreferences = {
+  [key: string]: string;
 };
 
 const ChatBot = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [userInput, setUserInput] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [finalTripData, setFinalTripData] = useState<any>(null);
-  const [preferences, setPreferences] = useState<any>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [userInput, setUserInput] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [finalTripData, setFinalTripData] = useState<any>(null);
+  const [preferences, setPreferences] = useState<UserPreferences | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
+useEffect(() => {
+  textareaRef.current?.focus();
 
-  const onSend = async (customInput?: string) => {
-    const inputToUse = customInput || userInput;
-    if (!inputToUse?.trim() || isLoading) return;
+  setMessages([
+    {
+      role: "assistant",
+      content: "Hi 👋 Where are you travelling from?",
+      ui: "location",
+    },
+  ]);
+}, []);
 
-    setIsLoading(true);
-    if(!customInput) setUserInput("");
+  const onSend = async (customInput?: string) => {
+    const inputToUse = customInput || userInput;
+    if (!inputToUse?.trim() || isLoading) return;
 
-    const newMsg: Message = { role: "user", content: inputToUse };
-    const currentMessages = [...messages, newMsg];
-    setMessages(currentMessages);
+    setIsLoading(true);
+    if (!customInput) setUserInput("");
 
-    const lastAssistantMsg = messages.filter(m => m.role === 'assistant').pop();
-    const isFinalRequest = lastAssistantMsg?.ui === 'final';
+    const newMsg: Message = { role: "user", content: inputToUse };
+    const currentMessages = [...messages, newMsg];
+    setMessages(currentMessages);
 
-    try {
-      const requestPayload = {
-        messages: currentMessages,
-        isfinal: isFinalRequest,
-      };
+    const lastAssistantMsg = messages.filter((m) => m.role === "assistant").pop();
+    const isFinalRequest = lastAssistantMsg?.ui === "final";
 
-      const result = await axios.post("/api/aimodel", requestPayload);
+    try {
+      const requestPayload = {
+        messages: currentMessages,
+        isfinal: isFinalRequest,
+      };
 
-      if (isFinalRequest) {
-        setFinalTripData(result.data);
-        setPreferences(extractUserPreferences(currentMessages));
-      } else {
-        setMessages(prev => [
-          ...prev,
-          {
-            role: "assistant",
-            content: result?.data?.resp || "Sorry, I didn’t understand that.",
-            ui: result?.data?.ui,
-          },
-        ]);
-      }
-    } catch (error: any) {
-      console.error("❌ Error in onSend:", error);
-      setMessages(prev => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Sorry, I encountered an error. Please try again.",
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-      setTimeout(() => textareaRef.current?.focus(), 100);
-    }
-  };
+      const result = await axios.post("/api/aimodel", requestPayload);
 
-  const generateFinalTrip = () => {
-    onSend("Please generate the trip plan now.");
-  };
+      if (isFinalRequest) {
+        const hasTripData =
+          !!result?.data &&
+          typeof result.data === "object" &&
+          (!!result.data.trip_plan || Array.isArray(result.data.itinerary));
 
-  const renderGenerativeUI = (ui: string) => {
-    switch (ui) {
-      case "budget":
-        return <Budget onSelected={(v: string) => onSend(v)} />;
-      case "groupSize":
-        return <Group_Sizze onSelected={(v: string) => onSend(v)} />;
-      case "duration":
-        return <DynamicDurationComponent onSelected={(v: string) => onSend(v)} />;
-      case "final":
-        return (
-          <div className="mt-4">
-            <Button onClick={generateFinalTrip} className="w-full" disabled={isLoading}>
-              {isLoading ? "Generating Trip Plan..." : "✨ Generate My Trip Plan"}
-            </Button>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+    if (
+  result?.data?.trip_plan &&
+  Array.isArray(result?.data?.itinerary) &&
+  result.data.itinerary.length > 0
+) {
+  setFinalTripData(result.data);
+} else {
+  setMessages((prev) => [
+    ...prev,
+    {
+      role: "assistant",
+      content: "I couldn't generate the trip itinerary. Please try again.",
+      ui: "final",
+    },
+  ]);
+}
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: result?.data?.resp || "Sorry, I did not understand that.",
+            ui: result?.data?.ui,
+          },
+        ]);
+      }
+    } catch (error: unknown) {
+      console.error("Error in onSend:", error);
 
-  const extractUserPreferences = (messages: Message[]) => {
-    const preferences: { [key: string]: string } = {};
-    for (let i = 0; i < messages.length; i++) {
-      const msg = messages[i];
-      if (msg.role === "user") {
-        const prevMsg = messages[i - 1];
-        if (prevMsg && prevMsg.role === "assistant" && prevMsg.ui) {
-          switch (prevMsg.ui) {
-            case "location": preferences.startingLocation = msg.content; break;
-            case "destination": preferences.destination = msg.content; break;
-            case "groupSize": preferences.groupSize = msg.content; break;
-            case "budget": preferences.budget = msg.content; break;
-            case "duration": preferences.duration = msg.content; break;
-            case "interests": preferences.interests = msg.content; break;
-          }
-        }
-      }
-    }
-    return preferences;
-  };
+      const errorMessage = axios.isAxiosError(error)
+        ? error?.response?.data?.error ||
+          error?.response?.data?.resp ||
+          error?.message ||
+          "Sorry, I encountered an error. Please try again."
+        : "Sorry, I encountered an error. Please try again.";
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      onSend();
-    }
-  };
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: errorMessage,
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => textareaRef.current?.focus(), 100);
+    }
+  };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setUserInput(event.target.value);
-  };
- 
-  // **👇 KEY CHANGE STARTS HERE **
-  // We now have a single return statement.
-  // The root div's class is conditional, providing the dynamic height.
-  return (
+  const generateFinalTrip = () => {
+    onSend("Please generate the trip plan now.");
+  };
+
+  const renderGenerativeUI = (ui: string) => {
+    switch (ui) {
+      case "budget":
+        return <Budget onSelected={(v: string) => onSend(v)} />;
+      case "groupSize":
+        return <Group_Sizze onSelected={(v: string) => onSend(v)} />;
+      case "duration":
+        return <DynamicDurationComponent onSelected={(v: string) => onSend(v)} />;
+      case "final":
+        return (
+          <div className="mt-4">
+            <Button onClick={generateFinalTrip} className="w-full" disabled={isLoading}>
+              {isLoading ? "Generating Trip Plan..." : "Generate My Trip Plan"}
+            </Button>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const extractUserPreferences = (items: Message[]) => {
+    const extracted: UserPreferences = {};
+
+    for (let i = 0; i < items.length; i++) {
+      const msg = items[i];
+
+      if (msg.role === "user") {
+        const prevMsg = items[i - 1];
+        if (prevMsg && prevMsg.role === "assistant" && prevMsg.ui) {
+          switch (prevMsg.ui) {
+            case "location":
+              extracted.startingLocation = msg.content;
+              break;
+            case "destination":
+              extracted.destination = msg.content;
+              break;
+            case "groupSize":
+              extracted.groupSize = msg.content;
+              break;
+            case "budget":
+              extracted.budget = msg.content;
+              break;
+            case "duration":
+              extracted.duration = msg.content;
+              break;
+            case "interests":
+              extracted.interests = msg.content;
+              break;
+          }
+        }
+      }
+    }
+
+    return extracted;
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      onSend();
+    }
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setUserInput(event.target.value);
+  };
+
+  return (
     <div className={finalTripData ? "" : "h-[87vh] flex flex-col"}>
       {finalTripData ? (
-        // If finalTripData exists, render the trip details. The container has no fixed height.
         <TripDisplay tripData={finalTripData} preferences={preferences} />
       ) : (
-        // Otherwise, render the chat interface within the fixed-height container.
         <>
-          {messages.length === 0 && (
-            <Empty onSelectOption={(v: string) => onSend(v)} />
-          )}
+          {messages.length === 0 && <Empty onSelectOption={(v: string) => onSend(v)} />}
 
           <section className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg: Message, index) =>
               msg.role === "user" ? (
                 <div className="flex justify-end" key={index}>
-                  <div className="max-w-lg bg-primary text-white px-4 py-2 rounded-lg">
-                    {msg.content}
-                  </div>
+                  <div className="max-w-lg bg-primary text-white px-4 py-2 rounded-lg">{msg.content}</div>
                 </div>
               ) : (
                 <div className="flex justify-start" key={index}>
@@ -182,8 +229,14 @@ const ChatBot = () => {
                 <div className="max-w-lg bg-gray-100 text-black px-4 py-2 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -218,7 +271,6 @@ const ChatBot = () => {
       )}
     </div>
   );
-  // **👆 KEY CHANGE ENDS HERE **
 };
 
 export default ChatBot;

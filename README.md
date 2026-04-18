@@ -1,52 +1,49 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Trip Planner
+
+An intelligent travel assistant built with Next.js that collects user preferences in chat, then generates a complete day-by-day itinerary using Gemini.
+
+## Features
+
+- Conversational trip planning flow
+- Personalized itinerary generation
+- Budget, group size, and duration-aware plans
+- Suggested hotels, activities, and local tips
+- Responsive interface
+
+## Tech Stack
+
+- Next.js (App Router)
+- React + TypeScript
+- Tailwind CSS
+- Clerk (auth)
+- Convex
+- Gemini via `@google/genai`
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Add environment variables in `.env.local`:
+
+- `GEMINI_API_KEY`
+- `UNSPLASH_ACCESS_KEY` (optional, for real image enrichment)
+- Clerk and Convex keys used by this project
+
+3. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# Ai-Trip-Planner
-An intelligent travel assistant that helps you plan trips effortlessly. Built with AI to generate personalized itineraries, suggest destinations, recommend hotels, find activities, and estimate budgets — all based on your preferences like travel dates, budget, and interests.
-🗺️ AI-powered itinerary generation
-
-🌍 Destination suggestions with descriptions & images
-
-🏨 Hotel and restaurant recommendations
-
-📅 Day-by-day travel plans
-
-💰 Budget estimation & cost breakdown
-
-📱 Clean, responsive UI
->>>>>>> ba3298fcdc2f37c11674ced3335c9f49d7773305
+- `npm run dev` - Start local development server
+- `npm run build` - Production build
+- `npm run start` - Run production server
+- `npm run lint` - Next.js lint command (requires ESLint setup)

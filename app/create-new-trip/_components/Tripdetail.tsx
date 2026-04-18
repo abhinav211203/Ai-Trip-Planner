@@ -109,7 +109,7 @@ const TripDisplay = ({ tripData, preferences }: TripDisplayProps) => {
                                 <div key={day.day} className="bg-white rounded-xl shadow-lg overflow-hidden">
                                     <div className="p-5 cursor-pointer hover:bg-green-50 flex justify-between items-center" onClick={() => toggleDay(day.day)}>
                                         <div>
-                                            <h3 className="text-xl font-bold text-gray-800">Day {day.day}: <span className="text-green-700">{day.day_theme}</span></h3>
+                                            <h3 className="text-xl font-bold text-gray-800">{typeof day.day === "number" ? `Day ${day.day}` : day.day} <span className="text-green-700">{day.day_theme}</span></h3>
                                             <p className="text-sm text-gray-600 mt-1">{day.day_plan}</p>
                                         </div>
                                         {expandedDays.includes(day.day) ? <ChevronUp className="text-green-600"/> : <ChevronDown className="text-green-600"/>}

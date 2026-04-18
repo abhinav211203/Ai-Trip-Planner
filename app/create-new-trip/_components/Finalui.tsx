@@ -28,8 +28,51 @@ interface FinalTripUIProps {
     duration?: string;
     interests?: string;
   };
-  tripData?: any;
+  tripData?: TripData | null;
   disable?: boolean;
+}
+
+interface TripHotel {
+  hotel_name: string;
+  hotel_address?: string;
+  price_per_night?: string;
+  rating?: number | string;
+  description?: string;
+}
+
+interface TripActivity {
+  place_name: string;
+  place_details?: string;
+  place_address?: string;
+  opening_hours?: string;
+  ticket_pricing?: string;
+  best_time_to_visit?: string;
+}
+
+interface ItineraryDay {
+  day: number | string;
+  day_plan?: string;
+  best_time_to_visit_day?: string;
+  activities?: TripActivity[];
+}
+
+interface LocalTip {
+  category: string;
+  tip: string;
+}
+
+interface TripPlan {
+  destination?: string;
+  duration?: string;
+  budget?: string;
+  group_size?: string;
+  hotels?: TripHotel[];
+}
+
+interface TripData {
+  trip_plan?: TripPlan;
+  itinerary?: ItineraryDay[];
+  local_tips?: LocalTip[];
 }
 
 export const FinalTripUI = ({ 
@@ -134,7 +177,7 @@ export const FinalTripUI = ({
   }
 
   // If trip data exists, show the complete trip details
-  const { trip_plan, itinerary, local_tips } = tripData;
+  const { trip_plan, itinerary = [], local_tips = [] } = tripData;
 
   return (
     <div className="w-full space-y-6">
