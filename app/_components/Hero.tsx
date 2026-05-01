@@ -4,45 +4,62 @@ import { Textarea } from '@/components/ui/textarea'
 import React from 'react'
 import {ArrowDown, Globe2, Landmark, Plane, Send} from 'lucide-react'
 import HeroVideoDialog from "@/components/magicui/hero-video-dialog";
-import { useUser, useClerk } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation'
 
 export const suggestion = [
   {
     title:'Create New Trip',
-    icon:<Globe2 className='text-blue-400 h-5 w-5'/>
+    icon:<Globe2 className='text-blue-400 h-5 w-5'/>,
+    mode: 'default',
   },
  {
     title:'Inspire me where to go',
-    icon:<Plane className='text-green-600 h-5 w-5'/>
+    icon:<Plane className='text-green-600 h-5 w-5'/>,
+    mode: 'inspire',
   },
  {
     title:'Discover Hidden Gems',
-    icon:<Landmark className='text-orange-500 h-5 w-5'/>
-  },
- {
-    title:'Create New Trip',
-    icon:<Globe2 className='text-yellow-400 h-5 w-5'/>
+    icon:<Landmark className='text-orange-500 h-5 w-5'/>,
+    mode: 'hidden-gems',
   },
 
 ]
 const Hero = () => {
   const {user} = useUser();
-  const { signOut } = useClerk();
   const router = useRouter();
   const [tripText, setTripText] = React.useState('');
 
+  const navigateToPlanner = (prompt?: string) => {
+    if (prompt?.trim()) {
+      router.push(`/create-new-trip?mode=smart&prompt=${encodeURIComponent(prompt)}`);
+      return;
+    }
+
+    router.push('/create-new-trip');
+  };
+
   const handleTripSubmit = () => {
     if (!user) {
-      // If not signed in, redirect to sign in
       router.push('/sign-in');
       return;
     }
-    
-    // If signed in, redirect to trip creation page or handle trip creation
-    router.push('/create-new-trip');
-    // You can also pass the trip text as a query parameter
-    // router.push(`/create-trip?text=${encodeURIComponent(tripText)}`);
+
+    navigateToPlanner(tripText);
+  }
+
+  const handleSuggestionClick = (mode: string) => {
+    if (!user) {
+      router.push('/sign-in');
+      return;
+    }
+
+    if (mode === 'default') {
+      navigateToPlanner();
+      return;
+    }
+
+    router.push(`/create-new-trip?mode=${encodeURIComponent(mode)}`);
   }
 
   return (
@@ -54,7 +71,7 @@ const Hero = () => {
             <div className='border rounded-2xl p-4 relative'>
                 <Textarea 
                   className='w-full h-28 bg-transparent border-none resize-none focus-visible:ring-0' 
-                  placeholder='Create Your Trip'
+                  placeholder='Describe the trip you want, or use one of the quick actions below'
                   value={tripText}
                   onChange={(e) => setTripText(e.target.value)}
                 />
@@ -68,12 +85,17 @@ const Hero = () => {
                 </Button>
             </div>
         </div>
-        <div className='flex gap-19'>
+        <div className='flex flex-wrap justify-center gap-4 pt-2'>
           {suggestion.map((suggestion,index)=>(
-            <div key={index} className='flex items-center gap-2 border rounded-full p-2 hover:bg-primary hover:text-white'>
+            <button
+              key={index}
+              type='button'
+              onClick={() => handleSuggestionClick(suggestion.mode)}
+              className='flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-primary hover:bg-primary hover:text-white'
+            >
               {suggestion.icon}
-              <h2 className='text-sm'>{suggestion.title}</h2>
-              </div>
+              <span>{suggestion.title}</span>
+            </button>
           ))}
         </div>
         <div className='flex justify-center items-center flex-col '>

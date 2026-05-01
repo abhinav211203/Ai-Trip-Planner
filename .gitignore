@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Prisma - migrations should be committed, but generated client can be ignored
+# Note: .env.local is already covered by .env*
+prisma/dev.db
+prisma/dev.db-journal
